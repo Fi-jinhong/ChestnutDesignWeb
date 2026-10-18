@@ -98,6 +98,11 @@
   backdrop-filter: none;
 }
 
+/* 关于我卡片：去掉阴影 */
+.local-mirror .about-card {
+  box-shadow: none;
+}
+
 /* 职业定位文案：字号、行高、对齐与颜色 */
 .local-mirror .about-quote-list p {
   font-weight: 400;
