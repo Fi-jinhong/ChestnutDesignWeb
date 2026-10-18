@@ -98,10 +98,33 @@
   backdrop-filter: none;
 }
 
-/* 职业定位文案：字重与颜色微调 */
+/* 职业定位文案：字号、行高、对齐与颜色 */
 .local-mirror .about-quote-list p {
   font-weight: 400;
   color: rgba(255, 255, 255, .88);
+  font-size: 16px;
+  line-height: 24px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* 职业定位卡片：内容间距 */
+.local-mirror .about-philosophy-card {
+  gap: 12px;
+}
+
+/* 职业概览人像：固定宽度展示 */
+.local-mirror .about-profile-image {
+  align-self: auto;
+  width: 426px;
+  max-width: 100%;
+  height: auto;
+}
+
+/* 职业概览经验数字放大 */
+.local-mirror .about-profile-summary strong {
+  font-size: 68px;
 }
 
 /* 联系区邮箱链接：宽度随内容，不被压缩 */
