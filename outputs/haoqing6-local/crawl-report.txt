@@ -1,0 +1,29 @@
+source: https://haoqing6.xyz/
+generated: 2026-10-03T06:47:30.795Z
+files: 207
+bytes: 190877418
+routes: 11
+
+Routes:
+/
+/projects/beidou-security-analysis
+/projects/beidou-security-operations
+/projects/ccs
+/projects/digital-twin
+/projects/industrial-simulation
+/projects/mes-execution-system
+/projects/software-training
+/projects/vehicle-hmi
+/projects/warehouse-visualization
+/projects/wms
+
+File counts by extension:
+.bin 3
+.css 3
+.html 11
+.js 8
+.mp4 5
+.pdf 1
+.png 20
+.webp 146
+.woff2 10

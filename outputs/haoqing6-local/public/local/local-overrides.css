@@ -1,0 +1,114 @@
+.header-contact-popover[hidden] {
+  display: none;
+}
+
+.local-mirror .site-shell {
+  opacity: 1;
+  visibility: visible;
+}
+
+.local-mirror .reveal {
+  opacity: 1;
+  transform: none;
+}
+
+.local-mirror .capability-media-layer {
+  transition: opacity .35s ease, transform .35s ease;
+}
+
+.local-mirror .other-project-card[hidden] {
+  display: none;
+}
+
+.local-mirror .download-dialog[open] {
+  display: block;
+}
+
+.local-mirror .galaxy-background {
+  opacity: 1;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(22, 93, 255, .08), transparent 42%),
+    #030405;
+}
+
+.local-mirror .galaxy-container canvas {
+  opacity: .78;
+  mix-blend-mode: screen;
+}
+
+.local-mirror .case-gallery-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 20px;
+}
+
+.local-mirror .case-gallery-grid figure,
+.local-mirror .case-gallery-grid figure.case-gallery-featured {
+  grid-column: 1 / -1 !important;
+  width: 100%;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: auto !important;
+  overflow: hidden;
+}
+
+.local-mirror .case-nav-project {
+  box-sizing: border-box;
+  height: 80px;
+  padding: 10px 22px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.local-mirror .case-nav-all {
+  box-sizing: border-box;
+  height: 80px;
+  padding: 10px 22px;
+}
+
+.local-mirror .case-nav-project.case-nav-next {
+  font-family: var(--font-inter), Inter, sans-serif;
+}
+
+.local-mirror .case-nav-project span,
+.local-mirror .case-nav-project strong {
+  text-align: center;
+}
+
+.local-mirror .case-gallery {
+  padding-top: 40px;
+}
+
+.local-mirror .case-gallery-grid img,
+.local-mirror .case-gallery-grid video {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0 !important;
+  max-height: none;
+  aspect-ratio: auto !important;
+  object-fit: contain;
+  border-radius: inherit;
+}
+
+@media (max-width: 768px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .local-mirror .border-glow-card,
+  .local-mirror .project-list,
+  .local-mirror .other-project-media,
+  .local-mirror .header-actions,
+  .local-mirror .hero-actions {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .local-mirror .border-glow-card > .edge-light {
+    display: none;
+  }
+}

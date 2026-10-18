@@ -1,0 +1,9 @@
+{
+  "name": "haoqing6-local-mirror",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local mirror of https://haoqing6.xyz/",
+  "scripts": {
+    "start": "node server.mjs"
+  }
+}

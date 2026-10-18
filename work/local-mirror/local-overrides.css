@@ -1,0 +1,25 @@
+.header-contact-popover[hidden] {
+  display: none;
+}
+
+.local-mirror .site-shell {
+  opacity: 1;
+  visibility: visible;
+}
+
+.local-mirror .reveal {
+  opacity: 1;
+  transform: none;
+}
+
+.local-mirror .capability-media-layer {
+  transition: opacity .35s ease, transform .35s ease;
+}
+
+.local-mirror .other-project-card[hidden] {
+  display: none;
+}
+
+.local-mirror .download-dialog[open] {
+  display: block;
+}
