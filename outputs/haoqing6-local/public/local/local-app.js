@@ -311,8 +311,8 @@
       context.clearRect(0, 0, width, height);
 
       var gradient = context.createRadialGradient(width * 0.5, height * 0.4, 0, width * 0.5, height * 0.42, Math.max(width, height) * 0.72);
-      gradient.addColorStop(0, 'rgba(22, 93, 255, 0.17)');
-      gradient.addColorStop(0.42, 'rgba(22, 93, 255, 0.045)');
+      gradient.addColorStop(0, 'rgba(168, 134, 255, 0.17)');
+      gradient.addColorStop(0.42, 'rgba(168, 134, 255, 0.045)');
       gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
       context.fillStyle = gradient;
       context.fillRect(0, 0, width, height);
