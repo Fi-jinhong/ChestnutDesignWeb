@@ -180,11 +180,11 @@ for i, p in enumerate(PROJECTS):
     story_html = '<section class="case-story" aria-label="项目案例说明">' + ''.join(
         f'<article><span>0{k+1}</span><h2>{t}</h2><p>{d}</p></article>' for k, (t, d) in enumerate(p['story'])) + '</section>'
     page = re.sub(r'<section class="case-story"[\s\S]*?</section>', lambda m: story_html, page, count=1)
-    # 画廊（02 起，封面已是 01）
+    # 画廊（含封面 01）
     figs = ''.join(
         f'<figure class=""><img src="/project-details/{p["slug"]}/{k:02d}.png" alt="{p["name"]}详情展示 {k:02d}" loading="lazy" decoding="async"/>'
         f'<figcaption>{k:02d}<!-- --> / <!-- -->{p["name"]}详情展示 {k:02d}</figcaption></figure>'
-        for k in range(2, p['images'] + 1))
+        for k in range(1, p['images'] + 1))
     page = re.sub(r'<div class="case-gallery-grid">[\s\S]*?</div></section>',
                   lambda m: f'<div class="case-gallery-grid">{figs}</div></section>', page, count=1)
     # 上一个 / 下一个
