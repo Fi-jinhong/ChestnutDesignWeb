@@ -92,6 +92,18 @@
   border-radius: inherit;
 }
 
+/* 职业定位文案：字重与颜色微调 */
+.local-mirror .about-quote-list p {
+  font-weight: 400;
+  color: rgba(255, 255, 255, .88);
+}
+
+/* 联系区邮箱链接：宽度随内容，不被压缩 */
+.local-mirror .contact-actions .contact-mail {
+  flex: 0 1 auto;
+  width: auto;
+}
+
 /* 修复「项目实践」统计网格超出卡片圆角：
    1. 卡片上 backdrop-filter 会导致部分浏览器不按圆角裁剪子元素，移除该卡片的 backdrop-filter
    2. about 区块原为固定 100svh 高度，内容可能超出卡片，改为随内容增高 */
