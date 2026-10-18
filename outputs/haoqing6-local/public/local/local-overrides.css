@@ -112,3 +112,41 @@
     display: none;
   }
 }
+
+/* 精选项目仅 2 张卡片：网格高度随内容变化，不再保留空行 */
+.local-mirror .project-list {
+  grid-template-rows: none;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  min-height: 0;
+}
+
+.local-mirror .project-card:first-child,
+.local-mirror .project-card:nth-child(2) {
+  grid-area: auto;
+  min-height: 480px;
+}
+
+@media (max-width: 1180px) {
+  .local-mirror .project-list {
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .local-mirror .project-card:first-child,
+  .local-mirror .project-card:nth-child(2) {
+    min-height: 440px;
+  }
+}
+
+@media (max-width: 768px) {
+  .local-mirror .project-list {
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .local-mirror .project-card:first-child,
+  .local-mirror .project-card:nth-child(2) {
+    min-height: 420px;
+  }
+}
