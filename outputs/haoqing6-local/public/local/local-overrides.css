@@ -92,6 +92,12 @@
   border-radius: inherit;
 }
 
+/* 项目实践统计网格：去掉单元格毛玻璃效果 */
+.local-mirror .about-result-grid div {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
 /* 职业定位文案：字重与颜色微调 */
 .local-mirror .about-quote-list p {
   font-weight: 400;
