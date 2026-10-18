@@ -114,12 +114,13 @@
   gap: 12px;
 }
 
-/* 职业概览人像：固定宽度展示 */
+/* 职业概览人像：固定宽度展示，去掉压暗滤镜 */
 .local-mirror .about-profile-image {
   align-self: auto;
   width: 426px;
   max-width: 100%;
   height: auto;
+  filter: none;
 }
 
 /* 职业概览经验数字放大 */
