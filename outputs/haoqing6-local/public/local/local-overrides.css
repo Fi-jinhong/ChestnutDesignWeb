@@ -98,6 +98,12 @@
   backdrop-filter: none;
 }
 
+/* 顶部品牌文字 */
+.local-mirror .brand strong {
+  font-size: 16px;
+  line-height: 32px;
+}
+
 /* 关于我卡片：去掉阴影 */
 .local-mirror .about-card {
   box-shadow: none;
