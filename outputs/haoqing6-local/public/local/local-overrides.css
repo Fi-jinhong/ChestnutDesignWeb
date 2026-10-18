@@ -104,6 +104,14 @@
   line-height: 32px;
 }
 
+/* 详情页「联系我」按钮弹出的联系方式面板 */
+.local-mirror .header-contact-popover.is-floating {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 200;
+}
+
 /* 关于我卡片：去掉阴影 */
 .local-mirror .about-card {
   box-shadow: none;

@@ -54,12 +54,9 @@
     });
   });
 
-  var contactTrigger = document.querySelector('.header-contact-trigger');
-  var contactButton = document.querySelector('.header-contact');
-  if (contactTrigger && contactButton) {
+  function buildContactPopover() {
     var popover = document.createElement('aside');
     popover.className = 'header-contact-popover';
-    popover.id = 'header-contact-popover';
     popover.setAttribute('aria-label', '个人联系信息');
     popover.innerHTML = [
       '<button class="header-contact-popover-close" type="button" aria-label="关闭个人联系信息">×</button>',
@@ -67,7 +64,25 @@
       '<button class="header-contact-detail" type="button"><span>WECHAT</span><strong>guojialin0210</strong><i class="copy-icon" aria-hidden="true"></i></button>',
       '<figure class="header-contact-qr"><img src="/media/wechat-qr.png" alt="过佳霖的微信二维码"><figcaption><strong>微信扫码联系</strong><span>SCAN TO CONNECT</span></figcaption></figure>',
     ].join('');
+    return popover;
+  }
+
+  function bindPopoverDetails(popover) {
+    popover.querySelectorAll('.header-contact-detail').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var value = button.querySelector('strong').textContent.trim();
+        copyText(value, value === 'guojialin0210' ? '微信' : '电话');
+      });
+    });
+  }
+
+  var contactTrigger = document.querySelector('.header-contact-trigger');
+  var contactButton = document.querySelector('.header-contact');
+  if (contactTrigger && contactButton) {
+    var popover = buildContactPopover();
+    popover.id = 'header-contact-popover';
     contactTrigger.appendChild(popover);
+    bindPopoverDetails(popover);
 
     var setPopover = function (open) {
       popover.hidden = !open;
@@ -83,11 +98,45 @@
     document.addEventListener('click', function (event) {
       if (!contactTrigger.contains(event.target)) setPopover(false);
     });
-    popover.querySelectorAll('.header-contact-detail').forEach(function (button) {
-      button.addEventListener('click', function () {
-        var value = button.querySelector('strong').textContent.trim();
-        copyText(value, value === 'guojialin0210' ? '微信' : '电话');
-      });
+  }
+
+  // 项目详情页底部「联系我」按钮：弹出与顶部栏一致的联系方式弹窗
+  var caseContactButton = document.querySelector('.case-footer a.button');
+  if (caseContactButton) {
+    var casePopover = buildContactPopover();
+    casePopover.classList.add('is-floating');
+    document.body.appendChild(casePopover);
+    bindPopoverDetails(casePopover);
+    casePopover.hidden = true;
+
+    var setCasePopover = function (open) {
+      casePopover.hidden = !open;
+      caseContactButton.setAttribute('aria-expanded', String(open));
+      if (!open) return;
+      var rect = caseContactButton.getBoundingClientRect();
+      var width = 352;
+      var left = Math.min(Math.max(12, rect.right - width), Math.max(12, window.innerWidth - width - 12));
+      var top = rect.top - casePopover.offsetHeight - 12;
+      if (top < 12) top = Math.min(window.innerHeight - casePopover.offsetHeight - 12, rect.bottom + 12);
+      casePopover.style.left = left + 'px';
+      casePopover.style.top = Math.max(12, top) + 'px';
+    };
+
+    caseContactButton.addEventListener('click', function (event) {
+      event.preventDefault();
+      setCasePopover(casePopover.hidden);
+    });
+    casePopover.querySelector('.header-contact-popover-close').addEventListener('click', function () {
+      setCasePopover(false);
+    });
+    document.addEventListener('click', function (event) {
+      if (casePopover.hidden) return;
+      if (!casePopover.contains(event.target) && !caseContactButton.contains(event.target)) {
+        setCasePopover(false);
+      }
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') setCasePopover(false);
     });
   }
 
