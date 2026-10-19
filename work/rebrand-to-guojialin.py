@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-"""将 haoqing6 本地镜像的身份信息替换为过佳霖（Guo Jialin）。
+"""将 本地站点快照的身份信息替换为过佳霖（Guo Jialin）。
 仅替换文字内容；图片、项目详情等未提供新素材的部分保持原样。
 """
 import glob
 import os
 
-ROOT = '/Users/fi/Library/Mobile Documents/com~apple~CloudDocs/05_UI作品集/栗子作品集网站/outputs/haoqing6-local/public'
+ROOT = '/Users/fi/Library/Mobile Documents/com~apple~CloudDocs/05_UI作品集/栗子作品集网站/outputs/chestnut-local/public'
 
 # 顺序敏感：先长后短、先具体后通用
 REPLACEMENTS = [

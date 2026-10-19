@@ -5,7 +5,7 @@
 """
 import re
 
-ROOT = '/Users/fi/Library/Mobile Documents/com~apple~CloudDocs/05_UI作品集/栗子作品集网站/outputs/haoqing6-local/public'
+ROOT = '/Users/fi/Library/Mobile Documents/com~apple~CloudDocs/05_UI作品集/栗子作品集网站/outputs/chestnut-local/public'
 
 PROJECTS = [
     dict(slug='nuannuan', kind='精选项目', idx='01', name='暖暖拾光',

@@ -7,7 +7,7 @@
 ## 快速开始
 
 ```bash
-cd outputs/haoqing6-local
+cd outputs/chestnut-local
 npm start          # 等价于 node server.mjs
 ```
 
@@ -28,7 +28,7 @@ npm start          # 等价于 node server.mjs
 │   ├── rebrand-to-guojialin.py  # 身份信息批量替换脚本
 │   └── local-mirror/            # 本地化补丁（注入到每个页面）
 │
-└── outputs/haoqing6-local/      # 最终产物：可直接运行的站点
+└── outputs/chestnut-local/      # 最终产物：可直接运行的站点
     ├── server.mjs               # 零依赖静态文件服务器（默认端口 4173）
     └── public/
         ├── index.html           # 主页
@@ -60,8 +60,8 @@ npm start          # 等价于 node server.mjs
 ## 维护方式
 
 - **更换项目素材**：把新图片放好并更新 `work/rebuild-projects.py` 中的项目配置，重跑 `python work/rebuild-projects.py` 即可重建首页项目区块与详情页
-- **调整样式**：统一写在 `outputs/haoqing6-local/public/local/local-overrides.css`（最后加载，优先级最高），避免直接改动压缩后的 CSS 包
-- **调整交互**：写在 `outputs/haoqing6-local/public/local/local-app.js`
+- **调整样式**：统一写在 `outputs/chestnut-local/public/local/local-overrides.css`（最后加载，优先级最高），避免直接改动压缩后的 CSS 包
+- **调整交互**：写在 `outputs/chestnut-local/public/local/local-app.js`
 
 ## 备注
 
