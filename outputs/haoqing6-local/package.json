@@ -1,8 +1,8 @@
 {
-  "name": "haoqing6-local-mirror",
+  "name": "chestnut-portfolio-local",
   "private": true,
   "version": "1.0.0",
-  "description": "Local mirror of https://haoqing6.xyz/",
+  "description": "Local portfolio site of 过佳霖 (Guo Jialin) — UI/UX Designer",
   "scripts": {
     "start": "node server.mjs"
   }

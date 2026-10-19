@@ -152,7 +152,7 @@ print(f'首页: 精选区块替换 {n1}, 过往区块替换 {n2}, 统计替换 {
 
 # ---------- 2. 详情页 ----------
 
-tpl = open(f'{ROOT}/projects/ccs/index.html', encoding='utf-8').read()
+tpl = open(f'{ROOT}/projects/nuannuan/index.html', encoding='utf-8').read()
 
 for i, p in enumerate(PROJECTS):
     page = tpl
