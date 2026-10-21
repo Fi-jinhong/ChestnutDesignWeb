@@ -49,9 +49,47 @@ const server = createServer((request, response) => {
     return;
   }
 
-  response.statusCode = 200;
+  const size = statSync(file).size;
+  const contentType = mimeTypes[path.extname(file).toLowerCase()] || 'application/octet-stream';
   response.setHeader('cache-control', 'no-cache');
-  response.setHeader('content-type', mimeTypes[path.extname(file).toLowerCase()] || 'application/octet-stream');
+  response.setHeader('content-type', contentType);
+  response.setHeader('accept-ranges', 'bytes');
+
+  // Safari 播放视频/音频要求服务器支持 HTTP Range 分段请求（206）
+  const range = request.headers.range;
+  const rangeMatch = range && /^bytes=(\d*)-(\d*)$/.exec(range);
+
+  if (rangeMatch && (rangeMatch[1] || rangeMatch[2])) {
+    let start = rangeMatch[1] === '' ? 0 : Number(rangeMatch[1]);
+    let end = rangeMatch[2] === '' ? size - 1 : Number(rangeMatch[2]);
+    if (rangeMatch[1] === '') {
+      // 后缀范围：bytes=-N 表示最后 N 字节
+      start = Math.max(0, size - Number(rangeMatch[2]));
+      end = size - 1;
+    }
+    if (start >= size || end >= size || start > end || Number.isNaN(start) || Number.isNaN(end)) {
+      response.statusCode = 416;
+      response.setHeader('content-range', `bytes */${size}`);
+      response.end();
+      return;
+    }
+    response.statusCode = 206;
+    response.setHeader('content-range', `bytes ${start}-${end}/${size}`);
+    response.setHeader('content-length', end - start + 1);
+    if (request.method === 'HEAD') {
+      response.end();
+      return;
+    }
+    createReadStream(file, { start, end }).pipe(response);
+    return;
+  }
+
+  response.statusCode = 200;
+  response.setHeader('content-length', size);
+  if (request.method === 'HEAD') {
+    response.end();
+    return;
+  }
   createReadStream(file).pipe(response);
 });
 
