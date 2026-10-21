@@ -104,6 +104,11 @@
   line-height: 32px;
 }
 
+/* Hero 内容区：去掉底部渐变遮罩，背景视频完整透出 */
+.local-mirror .hero-content {
+  background: none;
+}
+
 /* 详情页「联系我」按钮弹出的联系方式面板 */
 .local-mirror .header-contact-popover.is-floating {
   position: fixed;
