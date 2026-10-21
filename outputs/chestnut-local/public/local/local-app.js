@@ -2,9 +2,7 @@
   'use strict';
 
   var portfolioParts = [
-    '/downloads/portfolio-4801e138ef68-1.bin',
-    '/downloads/portfolio-4801e138ef68-2.bin',
-    '/downloads/portfolio-4801e138ef68-3.bin',
+    '/downloads/portfolio.pdf',
   ];
 
   document.documentElement.classList.add('local-mirror');
