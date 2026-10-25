@@ -231,3 +231,10 @@
     min-height: 420px;
   }
 }
+
+/* 详情页画廊：去掉鼠标移入图片放大/提亮效果 */
+.local-mirror .case-gallery-grid figure:hover img,
+.local-mirror .case-gallery-grid figure:focus-within img {
+  transform: none;
+  filter: none;
+}
