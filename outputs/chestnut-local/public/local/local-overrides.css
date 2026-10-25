@@ -275,3 +275,8 @@
 .local-mirror .about-profile-summary strong {
   font-size: 56px;
 }
+
+/* 联系我区块：顶部内边距收紧为 60px */
+.local-mirror #contact {
+  padding-top: 60px;
+}
