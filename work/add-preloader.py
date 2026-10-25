@@ -95,8 +95,20 @@ PRELOADER_JS = """/* CHESTNUT 作品集 — 首屏加载进度页
   var WEIGHTS = __WEIGHTS__;
   var DEFAULT_VIDEO = 8000000;
   var DEFAULT_IMAGE = 700000;
-  var MIN_MS = 700;    // 最短展示时长，避免一闪而过
-  var MAX_MS = 20000;  // 超时兜底：网络再差也放行
+
+  /* 两种模式：
+   * 首页（无 .case-page）→ 全量预加载：所有图片、视频、字体全部就绪才进入，
+   *   避免进入后还看到图片一张张冒出来；
+   * 详情页（.case-page）→ 只等首屏前几张，画廊图交给 progressive-images.js 逐张加载。
+   */
+  var isCasePage = !!document.querySelector('.case-page');
+  var FULL = !isCasePage;
+
+  var MIN_MS = 700;                        // 最短展示时长，避免一闪而过
+  // 首页要等全部内容，超时兜底给到 60s；详情页走短超时
+  var MAX_MS = FULL ? 60000 : 20000;
+  // 卡死保护：详情页连续 6s 无进展就放行；首页不用（大图下载中也会被判为无进展）
+  var STALL_MS = FULL ? 0 : 6000;
 
   var startedAt = Date.now();
   var tasks = [];
@@ -139,6 +151,8 @@ PRELOADER_JS = """/* CHESTNUT 作品集 — 首屏加载进度页
 
     addTask(weightOf(vsrc, DEFAULT_VIDEO), function () {
       if (video.readyState >= 3) return 1;            // HAVE_FUTURE_DATA：可以开始流畅播放
+      // 兜底：iOS/省流模式下视频可能根本不预加载，超时后不再卡住进度
+      if (Date.now() - startedAt > 25000) return 1;
       if (video.readyState >= 2) return 0.9;          // HAVE_CURRENT_DATA
       try {
         var b = video.buffered, d = video.duration;
@@ -150,42 +164,60 @@ PRELOADER_JS = """/* CHESTNUT 作品集 — 首屏加载进度页
     });
   }
 
-  /* ---------- 2. 首屏图片：提前改成 eager，避免 lazy 拖慢首屏 ---------- */
-  var isCasePage = !!document.querySelector('.case-page');
-  var maxImages = isCasePage ? 6 : 10;
+  /* ---------- 2. 图片：首页全部预加载，详情页只等首屏 ---------- */
+  var tracked = [];
   var imgs = document.querySelectorAll('img[src]');
-  for (var i = 0; i < imgs.length && i < maxImages; i++) {
-    (function (img, i) {
-      var src = img.getAttribute('src') || '';
-      var w = weightOf(src, DEFAULT_IMAGE);
-      try {
-        img.setAttribute('loading', 'eager');
-        img.setAttribute('decoding', 'async');
-        if (i < 3) img.setAttribute('fetchpriority', 'high');
-      } catch (e) {}
-      // 直接轮询 img.complete，无需额外事件
-      addTask(w, function () { return img.complete ? 1 : 0; });
-    })(imgs[i], i);
+  var limit = FULL ? imgs.length : 6;
+
+  function trackImage(img, idx) {
+    if (tracked.indexOf(img) >= 0) return;
+    tracked.push(img);
+    var src = img.getAttribute('src') || '';
+    var w = weightOf(src, DEFAULT_IMAGE);
+    try {
+      img.setAttribute('loading', 'eager');
+      img.setAttribute('decoding', 'async');
+      if (idx < 2) img.setAttribute('fetchpriority', 'high');
+    } catch (e) {}
+    // 直接轮询 img.complete，无需额外事件
+    addTask(w, function () { return img.complete ? 1 : 0; });
+  }
+
+  for (var i = 0; i < imgs.length && i < limit; i++) trackImage(imgs[i], i);
+
+  // 首页：把 JS 运行时插入的图片（联系弹层二维码等）也一并纳入统计
+  var mo = null;
+  if (FULL && window.MutationObserver) {
+    mo = new MutationObserver(function () {
+      var all = document.querySelectorAll('img[src]');
+      for (var k = 0; k < all.length; k++) trackImage(all[k], tracked.length);
+    });
+    try { mo.observe(document.documentElement, { childList: true, subtree: true }); } catch (e) { mo = null; }
   }
 
   /* ---------- 3. 文档 + 字体就绪 ---------- */
-  var docReady = document.readyState === 'complete';
+  // 注意：不能等 window.load —— 背景视频是流式下载，load 事件会被一直拖着不触发
+  // （实测限速下 readyState 长期停在 interactive）。图片/视频已单独统计，这里只看 DOM 解析完成。
+  var docReady = document.readyState !== 'loading';
   if (!docReady) {
-    window.addEventListener('load', function () { docReady = true; }, { once: true });
+    document.addEventListener('DOMContentLoaded', function () { docReady = true; }, { once: true });
   }
   var fontsReady = false;
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(function () { fontsReady = true; }, function () { fontsReady = true; });
+    setTimeout(function () { fontsReady = true; }, 8000);  // 字体排在队尾时给个兜底
   } else {
     fontsReady = true;
   }
-  addTask(500000, function () { return (docReady ? 0.6 : 0) + (fontsReady ? 0.4 : 0); });
+  // 首页给文档/字体更高权重：window.load 会等到所有 eager 图片完成，是个额外保险
+  addTask(FULL ? 2000000 : 500000, function () { return (docReady ? 0.6 : 0) + (fontsReady ? 0.4 : 0); });
 
   /* ---------- 渲染循环 ---------- */
   var displayed = 0;
   var allDone = false;
   var finishing = false;
   var hidden = false;
+  var hinted = false;
   var lastValue = -1;
   var lastGainAt = Date.now();
 
@@ -201,6 +233,7 @@ PRELOADER_JS = """/* CHESTNUT 作品集 — 首屏加载进度页
   function hide() {
     if (hidden) return;
     hidden = true;
+    if (mo) { try { mo.disconnect(); } catch (e) {} mo = null; }
     try { sessionStorage.setItem('chestnut-preloaded', '1'); } catch (e) {}
     root.classList.remove('is-preloading');
     overlay.classList.add('is-hidden');
@@ -218,16 +251,24 @@ PRELOADER_JS = """/* CHESTNUT 作品集 — 首屏加载进度页
     if (!allDone && (raw >= 0.999 || Date.now() - startedAt > MAX_MS)) {
       allDone = true;
     }
-    // 卡死保护：6 秒没有任何进展就放行，不让用户一直等
-    if (!allDone && Date.now() - lastGainAt > 6000 && Date.now() - startedAt > MIN_MS) {
+    // 卡死保护（仅详情页）：连续一段时间没有任何进展就放行
+    if (STALL_MS > 0 && !allDone && Date.now() - lastGainAt > STALL_MS && Date.now() - startedAt > MIN_MS) {
       allDone = true;
+    }
+    // 首页加载时间较长时给一句提示，避免以为卡住
+    if (FULL && !hinted && !finishing && Date.now() - startedAt > 12000) {
+      hinted = true;
+      if (hintEl) hintEl.textContent = '正在加载作品内容';
     }
     if (allDone && !finishing && Date.now() - startedAt >= MIN_MS) {
       finishing = true;
       if (hintEl) hintEl.textContent = '即将进入';
     }
 
-    var target = finishing ? 100 : Math.min(99.5, raw * 100);
+    // 大文件下载期间 raw 会长时间不变，加一点“呼吸式”微推进（最多 +10%），避免数字僵住
+    var stallSec = (Date.now() - lastGainAt - 1500) / 1000;
+    var creep = stallSec > 0 ? Math.min(10, stallSec * 0.8) : 0;
+    var target = finishing ? 100 : Math.min(99.5, Math.min(96, raw * 100 + creep));
     var diff = target - displayed;
     if (diff > 0) displayed = Math.min(target, displayed + Math.max(diff * 0.16, 0.4));
 
