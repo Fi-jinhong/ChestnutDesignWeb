@@ -238,3 +238,20 @@
   transform: none;
   filter: none;
 }
+
+/* 项目实践统计：去掉统计卡片与内部格子的白色底纹 */
+.local-mirror .about-result-grid {
+  background-image: none;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.local-mirror .about-result-grid > div {
+  background-image: none;
+  background-color: transparent;
+}
+
+/* Hero 内容区：不要背景遮罩 */
+.local-mirror .hero-content {
+  background: none;
+}
