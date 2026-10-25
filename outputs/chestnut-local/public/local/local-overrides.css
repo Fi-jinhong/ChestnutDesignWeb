@@ -280,3 +280,38 @@
 .local-mirror #contact {
   padding-top: 60px;
 }
+
+/* 详情页画廊：逐张加载（占位微光 + 加载完淡入） */
+.local-mirror .case-gallery-grid img[data-src] {
+  opacity: 0;
+}
+
+.local-mirror .case-gallery-grid img.is-loaded {
+  opacity: 1;
+  transition: opacity .55s ease;
+}
+
+/* 未加载时预留占位高度，避免容器塌陷导致所有图片都被判定为"在视口内" */
+.local-mirror .case-gallery-grid figure.is-loading {
+  min-height: clamp(300px, 34vw, 520px) !important;
+}
+
+.local-mirror .case-gallery-grid figure.is-loading::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, #0a0c11 18%, #171b24 38%, #0a0c11 58%);
+  background-size: 220% 100%;
+  animation: chestnut-shimmer 1.6s linear infinite;
+}
+
+@keyframes chestnut-shimmer {
+  from { background-position: 130% 0; }
+  to { background-position: -130% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .local-mirror .case-gallery-grid figure.is-loading::before {
+    animation: none;
+  }
+}

@@ -188,7 +188,7 @@ for i, p in enumerate(PROJECTS):
     page = re.sub(r'<section class="case-story"[\s\S]*?</section>', lambda m: story_html, page, count=1)
     # 画廊（含封面 01）
     figs = ''.join(
-        f'<figure class=""><img src="/project-details/{p["slug"]}/{k:02d}.png" alt="{p["name"]}详情展示 {k:02d}" loading="lazy" decoding="async"/>'
+        f'<figure class=""><img data-src="/project-details/{p["slug"]}/{k:02d}.png" data-alt="{p["name"]}详情展示 {k:02d}" class="is-pending" decoding="async"/>'
         f'<figcaption>{k:02d}<!-- --> / <!-- -->{p["name"]}详情展示 {k:02d}</figcaption></figure>'
         for k in range(1, p['images'] + 1))
     page = re.sub(r'<div class="case-gallery-grid">[\s\S]*?</div></section>',
