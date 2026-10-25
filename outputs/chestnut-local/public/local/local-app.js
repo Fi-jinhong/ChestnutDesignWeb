@@ -190,11 +190,11 @@
   var capabilityMeta = document.querySelector('.capability-media-meta');
   var capabilityCount = document.querySelector('.capability-media-count');
   var capabilityData = [
-    ['/project-details/nuannuan/01.png', 'UI/UX', '产品体验设计'],
-    ['/project-details/meme-live/01.png', 'VISUAL DESIGN', '视觉风格设计'],
-    ['/project-details/laihai/01.png', 'INTERACTION', '互动玩法设计'],
-    ['/project-details/meme-9th/01.png', 'OPERATIONS', '运营活动设计'],
-    ['/project-details/operations/01.png', 'DESIGN SYSTEM', '组件与会员体系'],
+    ['/project-details/nuannuan/01.webp', 'UI/UX', '产品体验设计'],
+    ['/project-details/meme-live/01.webp', 'VISUAL DESIGN', '视觉风格设计'],
+    ['/project-details/laihai/01.webp', 'INTERACTION', '互动玩法设计'],
+    ['/project-details/meme-9th/01.webp', 'OPERATIONS', '运营活动设计'],
+    ['/project-details/operations/01.webp', 'DESIGN SYSTEM', '组件与会员体系'],
     ['/media/hero-web.mp4', 'AI WORKFLOW', 'AI 辅助设计工作流'],
   ];
   capabilityRows.forEach(function (row, index) {

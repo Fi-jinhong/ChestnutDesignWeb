@@ -66,9 +66,9 @@ PROJECTS = [
 ]
 
 def cover(p):
-    return f'/project-details/{p["slug"]}/01.png'
+    return f'/project-details/{p["slug"]}/01.webp'
 
-# 首页卡片封面与详情页封面分离（详情页封面/gallery 第一张仍是 01.png）
+# 首页卡片封面与详情页封面分离（详情页封面/gallery 第一张仍是 01.webp）
 HOME_COVERS = {'nuannuan': '/covers/nuannuan.jpg', 'meme-live': '/covers/meme-live.jpg', 'operations': '/covers/operations.jpg'}
 
 def home_cover(p):
@@ -151,7 +151,7 @@ html = html.replace(old_stats, new_stats)
 # 能力展示区默认图片指向暖暖拾光封面
 n4 = html.count('src="/projects/ccs-monitor.png" alt="产品体验设计"')
 html = html.replace('src="/projects/ccs-monitor.png" alt="产品体验设计"',
-                    'src="/project-details/nuannuan/01.png" alt="产品体验设计"')
+                    'src="/project-details/nuannuan/01.webp" alt="产品体验设计"')
 
 open(index_path, 'w', encoding='utf-8').write(html)
 print(f'首页: 精选区块替换 {n1}, 过往区块替换 {n2}, 统计替换 {n3}, 能力区图片替换 {n4}')
@@ -165,7 +165,7 @@ for i, p in enumerate(PROJECTS):
     # preload
     page = page.replace(
         '<link rel="preload" href="/projects/ccs-monitor.png" as="image"/><link rel="preload" href="/project-details/ccs/01.webp" as="image"/>',
-        f'<link rel="preload" href="{cover(p)}" as="image"/><link rel="preload" href="/project-details/{p["slug"]}/02.png" as="image"/>')
+        f'<link rel="preload" href="{cover(p)}" as="image"/><link rel="preload" href="/project-details/{p["slug"]}/02.webp" as="image"/>')
     # 头部序号
     page = page.replace('<span>精选项目</span><strong>01<!-- --> / <!-- -->10</strong>',
                         f'<span>{p["kind"]}</span><strong>{p["idx"]}<!-- --> / <!-- -->05</strong>')
@@ -188,7 +188,7 @@ for i, p in enumerate(PROJECTS):
     page = re.sub(r'<section class="case-story"[\s\S]*?</section>', lambda m: story_html, page, count=1)
     # 画廊（含封面 01）
     figs = ''.join(
-        f'<figure class=""><img data-src="/project-details/{p["slug"]}/{k:02d}.png" data-alt="{p["name"]}详情展示 {k:02d}" class="is-pending" decoding="async"/>'
+        f'<figure class=""><img data-src="/project-details/{p["slug"]}/{k:02d}.webp" data-alt="{p["name"]}详情展示 {k:02d}" class="is-pending" decoding="async"/>'
         f'<figcaption>{k:02d}<!-- --> / <!-- -->{p["name"]}详情展示 {k:02d}</figcaption></figure>'
         for k in range(1, p['images'] + 1))
     page = re.sub(r'<div class="case-gallery-grid">[\s\S]*?</div></section>',
