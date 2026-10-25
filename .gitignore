@@ -3,3 +3,5 @@ node_modules/
 *.log
 # Rotato 动效工程文件（体积大、非站点资源）
 *.rotato
+# 部署打包产物（体积超过 GitHub 100MB 限制）
+*.zip
