@@ -1,0 +1,21 @@
+#!/usr/bin/expect -f
+# 一次性用密码登录服务器并写入本机公钥，之后 rsync/ssh 免密
+# 用法：SSHPASS=密码 expect work/deploy/install-key.exp
+set timeout 90
+set user [lindex $argv 0]
+set host [lindex $argv 1]
+set keyfile [lindex $argv 2]
+set password $env(SSHPASS)
+
+set pub [exec cat $keyfile.pub]
+set cmd "mkdir -p ~/.ssh && chmod 700 ~/.ssh && touch ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && grep -qxF {$pub} ~/.ssh/authorized_keys || echo {$pub} >> ~/.ssh/authorized_keys; echo SETUP_OK; cat /etc/os-release | head -2; nginx -v 2>&1 || echo NGINX_MISSING"
+
+spawn ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$user@$host" $cmd
+expect {
+    "*assword*" { send -- "$password\r"; exp_continue }
+    "*ermission denied*" { puts "\n登录失败：密码错误或用户不存在"; exit 1 }
+    "SETUP_OK" { puts "\n公钥写入成功" }
+    timeout { puts "\n连接超时"; exit 1 }
+    eof { puts "\n连接中断"; exit 1 }
+}
+expect eof
