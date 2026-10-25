@@ -255,3 +255,9 @@
 .local-mirror .hero-content {
   background: none;
 }
+
+/* 关于我：卡片标签统一 14px / 纯白 */
+.local-mirror .about-card-label {
+  font-size: 14px;
+  color: #fff;
+}
