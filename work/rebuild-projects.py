@@ -68,6 +68,12 @@ PROJECTS = [
 def cover(p):
     return f'/project-details/{p["slug"]}/01.png'
 
+# 首页卡片封面与详情页封面分离（详情页封面/gallery 第一张仍是 01.png）
+HOME_COVERS = {'nuannuan': '/covers/nuannuan.jpg', 'meme-live': '/covers/meme-live.jpg', 'operations': '/covers/operations.jpg'}
+
+def home_cover(p):
+    return HOME_COVERS.get(p['slug'], cover(p))
+
 # ---------- 1. 首页 ----------
 
 def glow_style(p):
@@ -94,7 +100,7 @@ def selected_card(p, layout):
             f'<p class="project-role">{p["role"]}</p><ul aria-label="项目标签">{tags}</ul>'
             f'<a class="button button--ghost project-link" href="/projects/{p["slug"]}" aria-label="查看{p["name"]}项目详情">查看案例 <span aria-hidden="true">↗</span></a></div>'
             f'<div class="project-showcase"><div class="project-visual">'
-            f'<img class="project-image--landscape" src="{cover(p)}" alt="{p["name"]}项目封面" loading="lazy" decoding="async"/></div>'
+            f'<img class="project-image--landscape" src="{home_cover(p)}" alt="{p["name"]}项目封面" loading="lazy" decoding="async"/></div>'
             f'<div class="project-metrics" aria-label="项目成果"><div><span>{p["m1"][0]}</span><strong>{p["m1"][1]}</strong></div>'
             f'<div><span>{p["m2"][0]}</span><strong>{p["m2"][1]}</strong></div></div></div></div></div>')
 
@@ -116,7 +122,7 @@ html, n1 = re.subn(r'<section class="section projects"[\s\S]*?</section>', lambd
 def past_card(p, i):
     cat = '社交产品' if p['slug'] == 'laihai' else '运营活动'
     return (f'<a class="other-project-card reveal" href="/projects/{p["slug"]}" style="--card-index:{i}" aria-label="查看{p["name"]}项目详情">'
-            f'<div class="other-project-media"><img src="{cover(p)}" alt="{p["name"]}项目封面" loading="lazy" decoding="async"/></div>'
+            f'<div class="other-project-media"><img src="{home_cover(p)}" alt="{p["name"]}项目封面" loading="lazy" decoding="async"/></div>'
             f'<div class="other-project-meta"><div><span>{cat}</span><h3>{p["name"]}</h3></div>'
             f'<span class="other-project-arrow" aria-hidden="true">↗</span></div></a>')
 

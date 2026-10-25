@@ -16,6 +16,9 @@
   var WEIGHTS = {
   "/assets/index-y2iB4ThX.css": 83296,
   "/assets/page-BJXOsEKc.css": 6972,
+  "/covers/meme-live.jpg": 186510,
+  "/covers/nuannuan.jpg": 234105,
+  "/covers/operations.jpg": 383816,
   "/media/hero-web.mp4": 7898831,
   "/media/portrait.png": 626163,
   "/media/wechat-qr.png": 168703,

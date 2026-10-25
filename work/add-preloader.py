@@ -47,6 +47,7 @@ def build_weights():
     patterns = [
         ("media", r".*\.(png|jpg|jpeg|webp|mp4)$"),
         ("project-details", r".*\.(png|jpg|jpeg|webp)$"),
+        ("covers", r".*\.(png|jpg|jpeg|webp)$"),
         ("assets", r".*\.css$"),
     ]
     for folder, pat in patterns:
