@@ -8,6 +8,15 @@
   var overlay = document.getElementById('site-preloader');
   if (!overlay) { root.classList.remove('is-preloading'); return; }
 
+  // 本会话已完成过一次加载：直接跳过，不再显示进度页
+  try {
+    if (sessionStorage.getItem('chestnut-preloaded') === '1') {
+      root.classList.remove('is-preloading');
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      return;
+    }
+  } catch (e) {}
+
   var numEl = document.getElementById('preloader-num');
   var barEl = document.getElementById('preloader-bar');
   var hintEl = document.getElementById('preloader-hint');
@@ -197,6 +206,7 @@
   function hide() {
     if (hidden) return;
     hidden = true;
+    try { sessionStorage.setItem('chestnut-preloaded', '1'); } catch (e) {}
     root.classList.remove('is-preloading');
     overlay.classList.add('is-hidden');
     setTimeout(function () {

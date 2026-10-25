@@ -14,7 +14,7 @@ import re
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "outputs", "chestnut-local", "public")
 
-CRITICAL_CSS = """<style id="preloader-critical">html.is-preloading,html.is-preloading body{overflow:hidden}#site-preloader{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#050607;color:#f4f5f7;font-family:'Inter',-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;transition:opacity .6s ease,visibility .6s ease}#site-preloader::after{content:'';position:absolute;left:50%;top:50%;width:64vmax;height:64vmax;transform:translate(-50%,-50%);background:radial-gradient(circle,#a886ff2b 0%,#a886ff12 38%,#0000 68%);pointer-events:none}#site-preloader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}.preloader-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:22px;width:min(76vw,340px)}.preloader-mark{font-size:12px;font-weight:500;letter-spacing:.42em;text-transform:uppercase;color:#a886ff}.preloader-num{display:flex;align-items:flex-start;gap:5px;font-size:clamp(46px,11vw,68px);line-height:1;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.preloader-num i{font-style:normal;font-size:.3em;font-weight:500;margin-top:.7em;color:#ffffff80}.preloader-bar{width:100%;height:2px;border-radius:2px;background:#ffffff1f;overflow:hidden}.preloader-bar span{display:block;width:0;height:100%;border-radius:2px;background:linear-gradient(90deg,#cbb0ff,#a886ff);transition:width .2s linear}.preloader-hint{margin:0;font-size:12px;letter-spacing:.14em;color:#ffffff66}@media (prefers-reduced-motion:reduce){#site-preloader{transition:opacity .2s ease}}</style>"""
+CRITICAL_CSS = """<style id="preloader-critical">html.skip-preloader #site-preloader{display:none!important}html.is-preloading,html.is-preloading body{overflow:hidden}#site-preloader{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#050607;color:#f4f5f7;font-family:'Inter',-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;transition:opacity .6s ease,visibility .6s ease}#site-preloader::after{content:'';position:absolute;left:50%;top:50%;width:64vmax;height:64vmax;transform:translate(-50%,-50%);background:radial-gradient(circle,#a886ff2b 0%,#a886ff12 38%,#0000 68%);pointer-events:none}#site-preloader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}.preloader-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:22px;width:min(76vw,340px)}.preloader-mark{font-size:12px;font-weight:500;letter-spacing:.42em;text-transform:uppercase;color:#a886ff}.preloader-num{display:flex;align-items:flex-start;gap:5px;font-size:clamp(46px,11vw,68px);line-height:1;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.preloader-num i{font-style:normal;font-size:.3em;font-weight:500;margin-top:.7em;color:#ffffff80}.preloader-bar{width:100%;height:2px;border-radius:2px;background:#ffffff1f;overflow:hidden}.preloader-bar span{display:block;width:0;height:100%;border-radius:2px;background:linear-gradient(90deg,#cbb0ff,#a886ff);transition:width .2s linear}.preloader-hint{margin:0;font-size:12px;letter-spacing:.14em;color:#ffffff66}@media (prefers-reduced-motion:reduce){#site-preloader{transition:opacity .2s ease}}</style>"""
 
 OVERLAY_HTML = (
     '<div class="site-preloader" id="site-preloader" role="progressbar" aria-label="页面加载进度" '
@@ -29,7 +29,9 @@ OVERLAY_HTML = (
 
 GUARD_SCRIPT = (
     '<script>'
-    '(function(){var r=document.documentElement;r.classList.add("is-preloading");'
+    '(function(){var r=document.documentElement;'
+    'var skip=false;try{skip=sessionStorage.getItem("chestnut-preloaded")==="1";}catch(e){}'
+    'if(skip){r.classList.add("skip-preloader");}else{r.classList.add("is-preloading");}'
     'window.__preloaderTs=Date.now();'
     'window.__killPreloader=function(){r.classList.remove("is-preloading");'
     'var o=document.getElementById("site-preloader");if(o&&o.parentNode){o.parentNode.removeChild(o);}};'
@@ -75,6 +77,15 @@ PRELOADER_JS = """/* CHESTNUT 作品集 — 首屏加载进度页
   var root = document.documentElement;
   var overlay = document.getElementById('site-preloader');
   if (!overlay) { root.classList.remove('is-preloading'); return; }
+
+  // 本会话已完成过一次加载：直接跳过，不再显示进度页
+  try {
+    if (sessionStorage.getItem('chestnut-preloaded') === '1') {
+      root.classList.remove('is-preloading');
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      return;
+    }
+  } catch (e) {}
 
   var numEl = document.getElementById('preloader-num');
   var barEl = document.getElementById('preloader-bar');
@@ -190,6 +201,7 @@ PRELOADER_JS = """/* CHESTNUT 作品集 — 首屏加载进度页
   function hide() {
     if (hidden) return;
     hidden = true;
+    try { sessionStorage.setItem('chestnut-preloaded', '1'); } catch (e) {}
     root.classList.remove('is-preloading');
     overlay.classList.add('is-hidden');
     setTimeout(function () {
@@ -257,6 +269,17 @@ def main():
         with open(page, encoding="utf-8") as f:
             html = f.read()
         if "site-preloader" in html:
+            # 已注入过：升级关键 CSS 与兜底脚本为最新版本
+            html2 = re.sub(
+                r'<style id="preloader-critical">[\s\S]*?</style>',
+                lambda m: CRITICAL_CSS, html, count=1)
+            html2 = re.sub(
+                r'<script>\(function\(\)\{var r=document\.documentElement;[\s\S]*?\}\)\(\);</script>',
+                lambda m: GUARD_SCRIPT, html2, count=1)
+            if html2 != html:
+                with open(page, "w", encoding="utf-8") as f:
+                    f.write(html2)
+                changed.append(os.path.relpath(page, ROOT) + "（升级）")
             continue
 
         # 1) head 末尾：关键 CSS + 兜底脚本 + 加载器脚本
