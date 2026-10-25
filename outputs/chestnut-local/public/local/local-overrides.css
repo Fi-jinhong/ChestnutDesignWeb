@@ -264,3 +264,14 @@
   font-size: 14px;
   color: #fff;
 }
+
+/* 职业概览卡片：去掉卡片底色与紫色光晕 */
+.local-mirror .about-profile-card {
+  background-color: transparent;
+  background-image: none;
+}
+
+/* 职业概览：7.5 年数字固定 56px */
+.local-mirror .about-profile-summary strong {
+  font-size: 56px;
+}
