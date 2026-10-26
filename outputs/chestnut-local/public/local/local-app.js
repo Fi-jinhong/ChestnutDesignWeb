@@ -60,7 +60,7 @@
       '<button class="header-contact-popover-close" type="button" aria-label="关闭个人联系信息">×</button>',
       '<button class="header-contact-detail" type="button"><span>PHONE</span><strong>+86 159 5157 4645</strong><i class="copy-icon" aria-hidden="true"></i></button>',
       '<button class="header-contact-detail" type="button"><span>WECHAT</span><strong>guojialin0210</strong><i class="copy-icon" aria-hidden="true"></i></button>',
-      '<figure class="header-contact-qr"><img src="/media/wechat-qr.png" alt="过佳霖的微信二维码"><figcaption><strong>微信扫码联系</strong><span>SCAN TO CONNECT</span></figcaption></figure>',
+      '<figure class="header-contact-qr"><img src="/media/wechat-qr.webp" alt="过佳霖的微信二维码"><figcaption><strong>微信扫码联系</strong><span>SCAN TO CONNECT</span></figcaption></figure>',
     ].join('');
     return popover;
   }

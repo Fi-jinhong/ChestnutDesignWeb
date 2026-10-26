@@ -13,9 +13,34 @@
     if (sessionStorage.getItem('chestnut-preloaded') === '1') {
       root.classList.remove('is-preloading');
       if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      // 视频可能还没拉过（上次进来就被跳过 / 缓存失效），这里补一次
+      if (window.__startHeroVideo) window.__startHeroVideo();
       return;
     }
   } catch (e) {}
+
+  /* ---------- 背景视频：入场之后才开始下载，先挂一个全局触发器 ---------- */
+  var videoStarted = false;
+  function startVideo() {
+    if (videoStarted) return;
+    var video = document.querySelector('video');
+    if (!video) return;
+    videoStarted = true;
+    try {
+      var srcEl = video.querySelector('source[data-src]');
+      if (srcEl) {
+        srcEl.setAttribute('src', srcEl.getAttribute('data-src'));
+        srcEl.removeAttribute('data-src');
+      }
+      video.setAttribute('preload', 'auto');
+      video.load();
+      var played = video.play();
+      if (played && played.catch) played.catch(function () {});
+    } catch (e) {}
+  }
+  window.__startHeroVideo = startVideo;
+  // 兜底：任何异常导致上面的流程没跑到，也不要让视频永远不加载
+  setTimeout(startVideo, 15000);
 
   var numEl = document.getElementById('preloader-num');
   var barEl = document.getElementById('preloader-bar');
@@ -23,14 +48,14 @@
 
   // 权重 = 文件真实体积（字节），让进度条按体积而非数量推进
   var WEIGHTS = {
-  "/assets/index-y2iB4ThX.css": 83296,
+  "/assets/index-y2iB4ThX.css": 83335,
   "/assets/page-BJXOsEKc.css": 6972,
-  "/covers/meme-live.jpg": 186510,
-  "/covers/nuannuan.jpg": 234105,
-  "/covers/operations.jpg": 383816,
+  "/covers/meme-live.webp": 89110,
+  "/covers/nuannuan.webp": 125058,
+  "/covers/operations.webp": 218820,
   "/media/hero-web.mp4": 7898831,
-  "/media/portrait.png": 626163,
-  "/media/wechat-qr.png": 168703,
+  "/media/portrait.webp": 62092,
+  "/media/wechat-qr.webp": 78686,
   "/project-details/laihai/01.webp": 108960,
   "/project-details/laihai/02.webp": 124590,
   "/project-details/laihai/03.webp": 84334,
@@ -102,18 +127,20 @@
   var DEFAULT_IMAGE = 700000;
 
   /* 两种模式：
-   * 首页（无 .case-page）→ 全量预加载：所有图片、视频、字体全部就绪才进入，
-   *   避免进入后还看到图片一张张冒出来；
+   * 首页（无 .case-page）→ 等首屏关键资源（图片 + 字体），不再等背景视频与整页大图；
    * 详情页（.case-page）→ 只等首屏前几张，画廊图交给 progressive-images.js 逐张加载。
+   *
+   * 背景视频体积最大（数 MB），让它排在入场之后再加载，并用 poster 先顶住画面：
+   * 否则限速/弱网下要干等十几秒才能进站。
    */
   var isCasePage = !!document.querySelector('.case-page');
   var FULL = !isCasePage;
 
   var MIN_MS = 700;                        // 最短展示时长，避免一闪而过
-  // 首页要等全部内容，超时兜底给到 60s；详情页走短超时
-  var MAX_MS = FULL ? 60000 : 20000;
-  // 卡死保护：详情页连续 6s 无进展就放行；首页不用（大图下载中也会被判为无进展）
-  var STALL_MS = FULL ? 0 : 6000;
+  // 首页只等首屏资源，超时兜底 8s；详情页走短超时
+  var MAX_MS = FULL ? 8000 : 12000;
+  // 卡死保护：连续一段时间没有任何进展就放行
+  var STALL_MS = FULL ? 5000 : 6000;
 
   var startedAt = Date.now();
   var tasks = [];
@@ -143,33 +170,7 @@
     return typeof w === 'number' && w > 0 ? w : fallback;
   }
 
-  /* ---------- 1. 背景视频：按缓冲进度计，能连续播放即算完成 ---------- */
-  var video = document.querySelector('video');
-  if (video) {
-    var vsrc = video.getAttribute('src') || '';
-    var sourceEl = video.querySelector('source');
-    if (!vsrc && sourceEl) vsrc = sourceEl.getAttribute('src') || '';
-    try {
-      video.setAttribute('preload', 'auto');
-      video.load();
-    } catch (e) {}
-
-    addTask(weightOf(vsrc, DEFAULT_VIDEO), function () {
-      if (video.readyState >= 3) return 1;            // HAVE_FUTURE_DATA：可以开始流畅播放
-      // 兜底：iOS/省流模式下视频可能根本不预加载，超时后不再卡住进度
-      if (Date.now() - startedAt > 25000) return 1;
-      if (video.readyState >= 2) return 0.9;          // HAVE_CURRENT_DATA
-      try {
-        var b = video.buffered, d = video.duration;
-        if (b && b.length && d && isFinite(d) && d > 0) {
-          return Math.min(0.85, b.end(b.length - 1) / d);
-        }
-      } catch (e) {}
-      return 0;
-    });
-  }
-
-  /* ---------- 2. 图片：首页全部预加载，详情页只等首屏 ---------- */
+  /* ---------- 2. 图片：只统计参与首屏的图片，lazy 图交给浏览器自己排队 ---------- */
   var tracked = [];
   var imgs = document.querySelectorAll('img[src]');
   var limit = FULL ? imgs.length : 6;
@@ -180,7 +181,6 @@
     var src = img.getAttribute('src') || '';
     var w = weightOf(src, DEFAULT_IMAGE);
     try {
-      img.setAttribute('loading', 'eager');
       img.setAttribute('decoding', 'async');
       if (idx < 2) img.setAttribute('fetchpriority', 'high');
     } catch (e) {}
@@ -188,13 +188,20 @@
     addTask(w, function () { return img.complete ? 1 : 0; });
   }
 
-  for (var i = 0; i < imgs.length && i < limit; i++) trackImage(imgs[i], i);
+  // 标记为 lazy 的图片由浏览器自己择机下载，不占用进场进度
+  var critical = [];
+  for (var n = 0; n < imgs.length; n++) {
+    if (critical.length >= limit) break;
+    if (imgs[n].getAttribute('loading') === 'lazy') continue;
+    critical.push(imgs[n]);
+  }
+  for (var i = 0; i < critical.length; i++) trackImage(critical[i], i);
 
-  // 首页：把 JS 运行时插入的图片（联系弹层二维码等）也一并纳入统计
+  // 运行时插入的图片（联系弹层二维码等）一并纳入统计，但不拖慢放行：数量小，且整体有超时兜底
   var mo = null;
   if (FULL && window.MutationObserver) {
     mo = new MutationObserver(function () {
-      var all = document.querySelectorAll('img[src]');
+      var all = document.querySelectorAll('img[src]:not([loading="lazy"])');
       for (var k = 0; k < all.length; k++) trackImage(all[k], tracked.length);
     });
     try { mo.observe(document.documentElement, { childList: true, subtree: true }); } catch (e) { mo = null; }
@@ -255,15 +262,17 @@
 
     if (!allDone && (raw >= 0.999 || Date.now() - startedAt > MAX_MS)) {
       allDone = true;
+      startVideo();                 // 放行同时开始拉背景视频，和淡出动画重叠进行
     }
-    // 卡死保护（仅详情页）：连续一段时间没有任何进展就放行
+    // 卡死保护：连续一段时间没有任何进展就放行
     if (STALL_MS > 0 && !allDone && Date.now() - lastGainAt > STALL_MS && Date.now() - startedAt > MIN_MS) {
       allDone = true;
+      startVideo();
     }
-    // 首页加载时间较长时给一句提示，避免以为卡住
-    if (FULL && !hinted && !finishing && Date.now() - startedAt > 12000) {
+    // 迟迟没加载完时给一句提示，避免以为卡住
+    if (!hinted && !finishing && Date.now() - startedAt > 6000) {
       hinted = true;
-      if (hintEl) hintEl.textContent = '正在加载作品内容';
+      if (hintEl) hintEl.textContent = '正在进入';
     }
     if (allDone && !finishing && Date.now() - startedAt >= MIN_MS) {
       finishing = true;
